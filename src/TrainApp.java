@@ -1,32 +1,31 @@
-import java.util.LinkedList;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class TrainApp {
     public static void main(String[] args) {
+        // 1. Create a LinkedHashSet to represent the train formation
+        // This ensures uniqueness AND preserves insertion order
+        Set<String> trainFormation = new LinkedHashSet<>();
 
-        System.out.println("=== UC4 - Maintain Ordered Bogie IDs ===");
+        // 2. Attach initial bogies
+        trainFormation.add("Engine");
+        trainFormation.add("Sleeper");
+        trainFormation.add("Cargo");
+        trainFormation.add("Guard");
 
-        // 1. Create a LinkedList for the consist
-        LinkedList<String> train = new LinkedList<>();
+        System.out.println("Current Train Formation: " + trainFormation);
 
-        // 2. Add initial bogies
-        train.add("Engine");
-        train.add("Sleeper");
-        train.add("AC");
-        train.add("Cargo");
-        train.add("Guard");
+        // 3. Attempt to attach a duplicate bogie intentionally
+        System.out.println("\nAttempting to add duplicate bogie: 'Sleeper'...");
+        boolean isAdded = trainFormation.add("Sleeper");
 
-        System.out.println("Initial Train Consist: " + train);
+        if (!isAdded) {
+            System.out.println("Alert: Bogie 'Sleeper' is already part of the consist. Duplicate ignored.");
+        }
 
-        // 3. Insert Pantry Car at position 2 (Index 2)
-        // In Java LinkedList, index 2 is the 3rd position
-        train.add(2, "Pantry Car");
-        System.out.println("After inserting \"Pantry Car\" at position 2: " + train);
-
-        // 4. Remove the first and last bogie
-        train.removeFirst();
-        train.removeLast();
-
-        // 5. Display the final ordered train consist
-        System.out.println("After Removing First & Last Bogie: " + train);
+        // 4. Display the final formation order
+        // Notice the order remains Engine -> Sleeper -> Cargo -> Guard
+        System.out.println("\nFinal Formation Order (Duplicates Removed):");
+        System.out.println(trainFormation);
     }
 }
