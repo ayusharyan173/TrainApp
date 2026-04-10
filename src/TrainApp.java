@@ -1,31 +1,36 @@
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TrainApp {
     public static void main(String[] args) {
-        // 1. Create a LinkedHashSet to represent the train formation
-        // This ensures uniqueness AND preserves insertion order
-        Set<String> trainFormation = new LinkedHashSet<>();
+        // 1. Create a HashMap to store bogie-capacity mapping
+        // Key: Bogie Name (String), Value: Capacity (Integer)
+        HashMap<String, Integer> bogieCapacities = new HashMap<>();
 
-        // 2. Attach initial bogies
-        trainFormation.add("Engine");
-        trainFormation.add("Sleeper");
-        trainFormation.add("Cargo");
-        trainFormation.add("Guard");
+        // 2. Use put() to map each bogie to its capacity
+        bogieCapacities.put("Sleeper", 72);
+        bogieCapacities.put("AC Chair", 56);
+        bogieCapacities.put("First Class", 24);
+        bogieCapacities.put("Cargo-Rectangular", 5000); // 5000kg load
+        bogieCapacities.put("Cargo-Cylindrical", 3000); // 3000L load
 
-        System.out.println("Current Train Formation: " + trainFormation);
+        System.out.println("--- Bogie Capacity Mapping Created ---");
 
-        // 3. Attempt to attach a duplicate bogie intentionally
-        System.out.println("\nAttempting to add duplicate bogie: 'Sleeper'...");
-        boolean isAdded = trainFormation.add("Sleeper");
+        // 3. Iterate over the map using entrySet()
+        // This allows us to access both the Key and the Value simultaneously
+        System.out.println("Bogie Name \t | \t Capacity");
+        System.out.println("------------------------------------");
 
-        if (!isAdded) {
-            System.out.println("Alert: Bogie 'Sleeper' is already part of the consist. Duplicate ignored.");
+        for (Map.Entry<String, Integer> entry : bogieCapacities.entrySet()) {
+            String bogie = entry.getKey();
+            Integer capacity = entry.getValue();
+            System.out.println(bogie + " \t | \t " + capacity);
         }
 
-        // 4. Display the final formation order
-        // Notice the order remains Engine -> Sleeper -> Cargo -> Guard
-        System.out.println("\nFinal Formation Order (Duplicates Removed):");
-        System.out.println(trainFormation);
+        // 4. Demonstrate Fast Lookup
+        String searchBogie = "AC Chair";
+        if(bogieCapacities.containsKey(searchBogie)) {
+            System.out.println("\nFast Lookup: The capacity of " + searchBogie + " is " + bogieCapacities.get(searchBogie));
+        }
     }
 }
