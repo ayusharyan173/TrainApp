@@ -1,4 +1,4 @@
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
 public class TrainApp {
 
@@ -6,25 +6,27 @@ public class TrainApp {
 
         System.out.println("=== Train Consist Management App ===");
 
-        // Create ArrayList for passenger bogies
-        ArrayList<String> bogies = new ArrayList<>();
+        // Use LinkedHashSet to maintain insertion order
+        LinkedHashSet<String> bogieIds = new LinkedHashSet<>();
 
-        // Add bogies
-        bogies.add("Sleeper");
-        bogies.add("AC Chair");
-        bogies.add("First Class");
+        // Add bogie IDs in required order
+        bogieIds.add("BG104");
+        bogieIds.add("BG103");
+        bogieIds.add("BG102");
+        bogieIds.add("BG101");
 
-        // Display bogies after insertion
-        System.out.println("Bogies after addition: " + bogies);
+        // Display in required format
+        System.out.print("Bogie IDs After Insertion: (");
 
-        // Remove a bogie
-        bogies.remove("AC Chair");
+        int count = 0;
+        for (String id : bogieIds) {
+            System.out.print(id);
+            count++;
+            if (count < bogieIds.size()) {
+                System.out.print(", ");
+            }
+        }
 
-        // Check existence
-        boolean exists = bogies.contains("Sleeper");
-        System.out.println("Is 'Sleeper' present? " + exists);
-
-        // Display final list
-        System.out.println("Final bogie list: " + bogies);
+        System.out.println(")");
     }
 }
