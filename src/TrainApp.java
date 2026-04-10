@@ -1,7 +1,5 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 // --- MODEL CLASS ---
 class Bogie {
@@ -13,102 +11,92 @@ class Bogie {
         this.capacity = capacity;
     }
 
-    public String getType() { return type; }
     public int getCapacity() { return capacity; }
+    public String getType() { return type; }
 
     @Override
     public String toString() {
-        return "Bogie{type='" + type + "', capacity=" + capacity + "}";
+        return type + " (" + capacity + " seats)";
     }
 }
 
 // --- MAIN APPLICATION ---
 public class TrainApp {
     public static void main(String[] args) {
-        // 1. Initialize Bogie List with multiple bogies of the same type
+        // 1. Initialize Bogie List
         List<Bogie> trainConsist = new ArrayList<>();
         trainConsist.add(new Bogie("Sleeper", 72));
         trainConsist.add(new Bogie("Sleeper", 72));
         trainConsist.add(new Bogie("AC Chair", 56));
         trainConsist.add(new Bogie("First Class", 24));
-        trainConsist.add(new Bogie("AC Chair", 56));
 
-        System.out.println("--- UC9: Grouping Bogies by Type ---");
+        System.out.println("--- UC10: Total Train Capacity Calculation ---");
+        System.out.println("Consist: " + trainConsist);
 
-        // 2. Stream Pipeline: Grouping bogies by their 'type'
-        Map<String, List<Bogie>> groupedBogies = trainConsist.stream()
-                .collect(Collectors.groupingBy(Bogie::getType));
+        // 2. Stream Pipeline: map() transformation and reduce() aggregation
+        int totalCapacity = trainConsist.stream()
+                .map(Bogie::getCapacity)        // Extracts numeric values
+                .reduce(0, Integer::sum);      // Sums extracted values
 
-        // 3. Display Grouped Result
-        groupedBogies.forEach((type, list) -> {
-            System.out.println(type + ": " + list);
-        });
+        // 3. Display Result
+        System.out.println("Total Seating Capacity: " + totalCapacity);
 
-        // 4. Run Test Suite
-        TrainGroupingTestSuite.runTests(trainConsist);
+        // 4. Run Comprehensive Test Suite
+        TrainReductionTestSuite.runTests(trainConsist);
     }
 }
 
-// --- SEPARATE TEST CASE CLASS ---
-class TrainGroupingTestSuite {
+// --- DEDICATED TEST CASE CLASS ---
+class TrainReductionTestSuite {
     public static void runTests(List<Bogie> originalList) {
-        System.out.println("\n--- UC9 TEST CASE EXECUTION ---");
+        System.out.println("\n--- UC10 TEST CASE EXECUTION ---");
 
-        testGrouping_BogiesGroupedByType(originalList);
-        testGrouping_MultipleBogiesInSameGroup(originalList);
-        testGrouping_DifferentBogieTypes(originalList);
-        testGrouping_EmptyBogieList();
-        testGrouping_SingleBogieCategory();
-        testGrouping_MapContainsCorrectKeys(originalList);
-        testGrouping_GroupSizeValidation(originalList);
-        testGrouping_OriginalListUnchanged(originalList);
+        testReduce_TotalSeatCalculation(originalList);
+        testReduce_MultipleBogiesAggregation(originalList);
+        testReduce_SingleBogieCapacity();
+        testReduce_EmptyBogieList();
+        testReduce_CorrectCapacityExtraction(originalList);
+        testReduce_AllBogiesIncluded(originalList);
+        testReduce_OriginalListUnchanged(originalList);
     }
 
-    private static void testGrouping_BogiesGroupedByType(List<Bogie> list) {
-        Map<String, List<Bogie>> result = list.stream().collect(Collectors.groupingBy(Bogie::getType));
-        System.out.println("testGrouping_BogiesGroupedByType: " + (!result.isEmpty() ? "PASSED" : "FAILED"));
+    private static void testReduce_TotalSeatCalculation(List<Bogie> list) {
+        int expected = list.stream().mapToInt(Bogie::getCapacity).sum();
+        int total = list.stream().map(Bogie::getCapacity).reduce(0, Integer::sum);
+        System.out.println("testReduce_TotalSeatCalculation: " + (total == expected ? "PASSED" : "FAILED"));
     }
 
-    private static void testGrouping_MultipleBogiesInSameGroup(List<Bogie> list) {
-        Map<String, List<Bogie>> result = list.stream().collect(Collectors.groupingBy(Bogie::getType));
-        // Check if Sleeper has 2 entries
-        boolean passed = result.get("Sleeper").size() == 2;
-        System.out.println("testGrouping_MultipleBogiesInSameGroup: " + (passed ? "PASSED" : "FAILED"));
+    private static void testReduce_MultipleBogiesAggregation(List<Bogie> list) {
+        int total = list.stream().map(Bogie::getCapacity).reduce(0, Integer::sum);
+        System.out.println("testReduce_MultipleBogiesAggregation: " + (total > 0 && list.size() > 1 ? "PASSED" : "FAILED"));
     }
 
-    private static void testGrouping_DifferentBogieTypes(List<Bogie> list) {
-        Map<String, List<Bogie>> result = list.stream().collect(Collectors.groupingBy(Bogie::getType));
-        boolean passed = result.containsKey("Sleeper") && result.containsKey("AC Chair") && result.containsKey("First Class");
-        System.out.println("testGrouping_DifferentBogieTypes: " + (passed ? "PASSED" : "FAILED"));
+    private static void testReduce_SingleBogieCapacity() {
+        List<Bogie> singleList = List.of(new Bogie("Solo", 50));
+        int total = singleList.stream().map(Bogie::getCapacity).reduce(0, Integer::sum);
+        System.out.println("testReduce_SingleBogieCapacity: " + (total == 50 ? "PASSED" : "FAILED"));
     }
 
-    private static void testGrouping_EmptyBogieList() {
+    private static void testReduce_EmptyBogieList() {
         List<Bogie> emptyList = new ArrayList<>();
-        Map<String, List<Bogie>> result = emptyList.stream().collect(Collectors.groupingBy(Bogie::getType));
-        System.out.println("testGrouping_EmptyBogieList: " + (result.isEmpty() ? "PASSED" : "FAILED"));
+        int total = emptyList.stream().map(Bogie::getCapacity).reduce(0, Integer::sum);
+        System.out.println("testReduce_EmptyBogieList: " + (total == 0 ? "PASSED" : "FAILED"));
     }
 
-    private static void testGrouping_SingleBogieCategory() {
-        List<Bogie> list = List.of(new Bogie("Sleeper", 72), new Bogie("Sleeper", 72));
-        Map<String, List<Bogie>> result = list.stream().collect(Collectors.groupingBy(Bogie::getType));
-        System.out.println("testGrouping_SingleBogieCategory: " + (result.size() == 1 ? "PASSED" : "FAILED"));
+    private static void testReduce_CorrectCapacityExtraction(List<Bogie> list) {
+        int firstActual = list.get(0).getCapacity();
+        int firstMapped = list.stream().map(Bogie::getCapacity).findFirst().orElse(-1);
+        System.out.println("testReduce_CorrectCapacityExtraction: " + (firstActual == firstMapped ? "PASSED" : "FAILED"));
     }
 
-    private static void testGrouping_MapContainsCorrectKeys(List<Bogie> list) {
-        Map<String, List<Bogie>> result = list.stream().collect(Collectors.groupingBy(Bogie::getType));
-        boolean passed = result.keySet().containsAll(List.of("Sleeper", "AC Chair", "First Class"));
-        System.out.println("testGrouping_MapContainsCorrectKeys: " + (passed ? "PASSED" : "FAILED"));
+    private static void testReduce_AllBogiesIncluded(List<Bogie> list) {
+        long count = list.stream().map(Bogie::getCapacity).count();
+        System.out.println("testReduce_AllBogiesIncluded: " + (count == list.size() ? "PASSED" : "FAILED"));
     }
 
-    private static void testGrouping_GroupSizeValidation(List<Bogie> list) {
-        Map<String, List<Bogie>> result = list.stream().collect(Collectors.groupingBy(Bogie::getType));
-        int sleeperCount = result.get("Sleeper").size();
-        System.out.println("testGrouping_GroupSizeValidation: " + (sleeperCount == 2 ? "PASSED" : "FAILED"));
-    }
-
-    private static void testGrouping_OriginalListUnchanged(List<Bogie> list) {
+    private static void testReduce_OriginalListUnchanged(List<Bogie> list) {
         int initialSize = list.size();
-        list.stream().collect(Collectors.groupingBy(Bogie::getType));
-        System.out.println("testGrouping_OriginalListUnchanged: " + (list.size() == initialSize ? "PASSED" : "FAILED"));
+        list.stream().map(Bogie::getCapacity).reduce(0, Integer::sum);
+        System.out.println("testReduce_OriginalListUnchanged: " + (list.size() == initialSize ? "PASSED" : "FAILED"));
     }
 }
