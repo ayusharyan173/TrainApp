@@ -1,113 +1,114 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 // --- MODEL CLASS ---
 class Bogie {
-    String name;
+    String type;
     int capacity;
 
-    public Bogie(String name, int capacity) {
-        this.name = name;
+    public Bogie(String type, int capacity) {
+        this.type = type;
         this.capacity = capacity;
     }
 
+    public String getType() { return type; }
     public int getCapacity() { return capacity; }
-    public String getName() { return name; }
 
     @Override
     public String toString() {
-        return name + " (" + capacity + " seats)";
+        return "Bogie{type='" + type + "', capacity=" + capacity + "}";
     }
 }
 
 // --- MAIN APPLICATION ---
 public class TrainApp {
     public static void main(String[] args) {
-        // 1. Initialize Bogie List (Reuse from UC7)
+        // 1. Initialize Bogie List with multiple bogies of the same type
         List<Bogie> trainConsist = new ArrayList<>();
+        trainConsist.add(new Bogie("Sleeper", 72));
         trainConsist.add(new Bogie("Sleeper", 72));
         trainConsist.add(new Bogie("AC Chair", 56));
         trainConsist.add(new Bogie("First Class", 24));
-        trainConsist.add(new Bogie("General", 90));
+        trainConsist.add(new Bogie("AC Chair", 56));
 
-        System.out.println("--- UC8: Train Consist Management ---");
-        System.out.println("Original Consist: " + trainConsist);
+        System.out.println("--- UC9: Grouping Bogies by Type ---");
 
-        // 2. Stream Filtering (Capacity > 60)
-        List<Bogie> filteredList = trainConsist.stream()
-                .filter(b -> b.getCapacity() > 60)
-                .collect(Collectors.toList());
+        // 2. Stream Pipeline: Grouping bogies by their 'type'
+        Map<String, List<Bogie>> groupedBogies = trainConsist.stream()
+                .collect(Collectors.groupingBy(Bogie::getType));
 
-        System.out.println("Filtered High-Capacity Bogies: " + filteredList);
+        // 3. Display Grouped Result
+        groupedBogies.forEach((type, list) -> {
+            System.out.println(type + ": " + list);
+        });
 
-        // 3. Run Validation Suite
-        TrainTestSuite.runTests(trainConsist);
+        // 4. Run Test Suite
+        TrainGroupingTestSuite.runTests(trainConsist);
     }
 }
 
 // --- SEPARATE TEST CASE CLASS ---
-class TrainTestSuite {
+class TrainGroupingTestSuite {
     public static void runTests(List<Bogie> originalList) {
-        System.out.println("\n--- UC8 TEST CASE EXECUTION ---");
+        System.out.println("\n--- UC9 TEST CASE EXECUTION ---");
 
-        testFilter_CapacityGreaterThanThreshold(originalList);
-        testFilter_CapacityEqualToThreshold();
-        testFilter_CapacityLessThanThreshold();
-        testFilter_MultipleBogiesMatching(originalList);
-        testFilter_NoBogiesMatching(originalList);
-        testFilter_AllBogiesMatching(originalList);
-        testFilter_EmptyBogieList();
-        testFilter_OriginalListUnchanged(originalList);
+        testGrouping_BogiesGroupedByType(originalList);
+        testGrouping_MultipleBogiesInSameGroup(originalList);
+        testGrouping_DifferentBogieTypes(originalList);
+        testGrouping_EmptyBogieList();
+        testGrouping_SingleBogieCategory();
+        testGrouping_MapContainsCorrectKeys(originalList);
+        testGrouping_GroupSizeValidation(originalList);
+        testGrouping_OriginalListUnchanged(originalList);
     }
 
-    private static void testFilter_CapacityGreaterThanThreshold(List<Bogie> list) {
-        List<Bogie> result = list.stream().filter(b -> b.getCapacity() > 70).collect(Collectors.toList());
-        boolean passed = result.stream().allMatch(b -> b.getCapacity() > 70) && !result.isEmpty();
-        System.out.println("testFilter_CapacityGreaterThanThreshold: " + (passed ? "PASSED" : "FAILED"));
+    private static void testGrouping_BogiesGroupedByType(List<Bogie> list) {
+        Map<String, List<Bogie>> result = list.stream().collect(Collectors.groupingBy(Bogie::getType));
+        System.out.println("testGrouping_BogiesGroupedByType: " + (!result.isEmpty() ? "PASSED" : "FAILED"));
     }
 
-    private static void testFilter_CapacityEqualToThreshold() {
-        List<Bogie> list = List.of(new Bogie("ThresholdBogie", 70));
-        List<Bogie> result = list.stream().filter(b -> b.getCapacity() > 70).collect(Collectors.toList());
-        System.out.println("testFilter_CapacityEqualToThreshold: " + (result.isEmpty() ? "PASSED" : "FAILED"));
+    private static void testGrouping_MultipleBogiesInSameGroup(List<Bogie> list) {
+        Map<String, List<Bogie>> result = list.stream().collect(Collectors.groupingBy(Bogie::getType));
+        // Check if Sleeper has 2 entries
+        boolean passed = result.get("Sleeper").size() == 2;
+        System.out.println("testGrouping_MultipleBogiesInSameGroup: " + (passed ? "PASSED" : "FAILED"));
     }
 
-    private static void testFilter_CapacityLessThanThreshold() {
-        List<Bogie> list = List.of(new Bogie("LowCap", 69));
-        List<Bogie> result = list.stream().filter(b -> b.getCapacity() > 70).collect(Collectors.toList());
-        System.out.println("testFilter_CapacityLessThanThreshold: " + (result.isEmpty() ? "PASSED" : "FAILED"));
+    private static void testGrouping_DifferentBogieTypes(List<Bogie> list) {
+        Map<String, List<Bogie>> result = list.stream().collect(Collectors.groupingBy(Bogie::getType));
+        boolean passed = result.containsKey("Sleeper") && result.containsKey("AC Chair") && result.containsKey("First Class");
+        System.out.println("testGrouping_DifferentBogieTypes: " + (passed ? "PASSED" : "FAILED"));
     }
 
-    private static void testFilter_MultipleBogiesMatching(List<Bogie> list) {
-        List<Bogie> result = list.stream().filter(b -> b.getCapacity() > 50).collect(Collectors.toList());
-        // Sleeper(72), AC Chair(56), General(90) should match
-        System.out.println("testFilter_MultipleBogiesMatching: " + (result.size() >= 2 ? "PASSED" : "FAILED"));
-    }
-
-    private static void testFilter_NoBogiesMatching(List<Bogie> list) {
-        List<Bogie> result = list.stream().filter(b -> b.getCapacity() > 200).collect(Collectors.toList());
-        System.out.println("testFilter_NoBogiesMatching: " + (result.isEmpty() ? "PASSED" : "FAILED"));
-    }
-
-    private static void testFilter_AllBogiesMatching(List<Bogie> list) {
-        List<Bogie> result = list.stream().filter(b -> b.getCapacity() > 0).collect(Collectors.toList());
-        System.out.println("testFilter_AllBogiesMatching: " + (result.size() == list.size() ? "PASSED" : "FAILED"));
-    }
-
-    private static void testFilter_EmptyBogieList() {
+    private static void testGrouping_EmptyBogieList() {
         List<Bogie> emptyList = new ArrayList<>();
-        try {
-            emptyList.stream().filter(b -> b.getCapacity() > 70).collect(Collectors.toList());
-            System.out.println("testFilter_EmptyBogieList: PASSED");
-        } catch (Exception e) {
-            System.out.println("testFilter_EmptyBogieList: FAILED");
-        }
+        Map<String, List<Bogie>> result = emptyList.stream().collect(Collectors.groupingBy(Bogie::getType));
+        System.out.println("testGrouping_EmptyBogieList: " + (result.isEmpty() ? "PASSED" : "FAILED"));
     }
 
-    private static void testFilter_OriginalListUnchanged(List<Bogie> list) {
+    private static void testGrouping_SingleBogieCategory() {
+        List<Bogie> list = List.of(new Bogie("Sleeper", 72), new Bogie("Sleeper", 72));
+        Map<String, List<Bogie>> result = list.stream().collect(Collectors.groupingBy(Bogie::getType));
+        System.out.println("testGrouping_SingleBogieCategory: " + (result.size() == 1 ? "PASSED" : "FAILED"));
+    }
+
+    private static void testGrouping_MapContainsCorrectKeys(List<Bogie> list) {
+        Map<String, List<Bogie>> result = list.stream().collect(Collectors.groupingBy(Bogie::getType));
+        boolean passed = result.keySet().containsAll(List.of("Sleeper", "AC Chair", "First Class"));
+        System.out.println("testGrouping_MapContainsCorrectKeys: " + (passed ? "PASSED" : "FAILED"));
+    }
+
+    private static void testGrouping_GroupSizeValidation(List<Bogie> list) {
+        Map<String, List<Bogie>> result = list.stream().collect(Collectors.groupingBy(Bogie::getType));
+        int sleeperCount = result.get("Sleeper").size();
+        System.out.println("testGrouping_GroupSizeValidation: " + (sleeperCount == 2 ? "PASSED" : "FAILED"));
+    }
+
+    private static void testGrouping_OriginalListUnchanged(List<Bogie> list) {
         int initialSize = list.size();
-        list.stream().filter(b -> b.getCapacity() > 60).collect(Collectors.toList());
-        System.out.println("testFilter_OriginalListUnchanged: " + (list.size() == initialSize ? "PASSED" : "FAILED"));
+        list.stream().collect(Collectors.groupingBy(Bogie::getType));
+        System.out.println("testGrouping_OriginalListUnchanged: " + (list.size() == initialSize ? "PASSED" : "FAILED"));
     }
 }
