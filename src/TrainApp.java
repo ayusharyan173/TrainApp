@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.List;
 
 public class TrainApp {
 
@@ -7,8 +6,25 @@ public class TrainApp {
 
         System.out.println("=== Train Consist Management App ===");
 
-        List<String> trainConsist = new ArrayList<>();
+        // Create ArrayList for passenger bogies
+        ArrayList<String> bogies = new ArrayList<>();
 
-        System.out.println("Initial bogie count: " + trainConsist.size());
+        // Add bogies
+        bogies.add("Sleeper");
+        bogies.add("AC Chair");
+        bogies.add("First Class");
+
+        // Display bogies after insertion
+        System.out.println("Bogies after addition: " + bogies);
+
+        // Remove a bogie
+        bogies.remove("AC Chair");
+
+        // Check existence
+        boolean exists = bogies.contains("Sleeper");
+        System.out.println("Is 'Sleeper' present? " + exists);
+
+        // Display final list
+        System.out.println("Final bogie list: " + bogies);
     }
 }
